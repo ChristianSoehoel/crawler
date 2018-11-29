@@ -13,17 +13,26 @@ namespace Crawler
             Console.WriteLine("Spider initiated ...");
         }
 
-        public Spider(string siteUrl) : this()
-        {
-            this.SiteUrl = siteUrl;
-        }
-
         private string siteUrl;
 
         public string SiteUrl
         {
             get { return siteUrl; }
             set { siteUrl = value; }
+        }
+
+		string page;
+
+		public string Page 
+		{
+			get { return page; } 
+		}
+
+		List<string> hrefs = new List<string>();
+
+		public List<string> Hrefs 
+		{
+            get { return hrefs; }
         }
 
         public void Crawl()
@@ -33,19 +42,18 @@ namespace Crawler
 			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(SiteUrl);
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
-			Console.WriteLine("Response code: " + response.ResponseUri);
-
             Stream resStream = response.GetResponseStream();
 
             Console.WriteLine(response.StatusDescription);
 
             StreamReader reader = new StreamReader(resStream);
-            string page = reader.ReadToEnd();
+            page = reader.ReadToEnd();
 
-            Console.WriteLine("Page length: " + page.Length);
             getLinks(page);
 
-        }
+        }   
+
+
 
         private void getLinks(string page)
         {
@@ -55,11 +63,6 @@ namespace Crawler
             MatchCollection matches = regex.Matches(page);
             Console.WriteLine("Number of <a> </a> founds: " + matches.Count);
 
-            /*foreach (Match elementMatch in matches)
-            {
-                Console.WriteLine("<a>...</a>" + elementMatch.ToString());
-            }*/
-
             getHrefs(matches);
         }
 
@@ -68,8 +71,6 @@ namespace Crawler
             // Looking for string href="<some characters>"
             var regex = new Regex("(href=(\'|\"))\\s*[\\s,:,.,?,-,\\/,a-z,A-Z,=,0-9,_,-]+(\'|\")");
             Console.WriteLine("Number of href founds: " + matches.Count);
-
-			var queue = new Queue<string>();
 
             foreach (Match elementMatch in matches)
             {
@@ -91,7 +92,8 @@ namespace Crawler
                         Console.WriteLine("String does not contain either ' or \" " + hRef);
                     }
 
-                    Console.WriteLine("href element: " + hRefSplit[1]);
+                    //Console.WriteLine("href element: " + hRefSplit[1]);
+					hrefs.Add(hRefSplit[1]);
                 }
             }
         }
